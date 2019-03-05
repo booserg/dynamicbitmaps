@@ -22,53 +22,59 @@ namespace VideoControl
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private bool isRunning = false;
         private int imageIndex = 0;
+
+        Timer timer;
 
         public MainWindowViewModel() 
         {
-            start = new DelegateCommand(() => { isRunning = true; });
-            stop = new DelegateCommand(() => { isRunning = false; });
+            start = new DelegateCommand(() => { timer = new Timer(TimerTick, null, 0, 100); });
+            stop = new DelegateCommand(() => 
+            {
+                if (timer != null)
+                {
+                    timer.Dispose();
+                    timer = null;
+                }
+            });
 
-            images = new List<BitmapImage>();
-            images.Add(new BitmapImage(new Uri(@"C:\temp\images\1.bmp")));
-            images.Add(new BitmapImage(new Uri(@"C:\temp\images\2.bmp")));
-            images.Add(new BitmapImage(new Uri(@"C:\temp\images\3.bmp")));
+            rawImages = new List<byte[]>();
+            
+            rawImages.Add(Convert(new BitmapImage(new Uri(@"C:\temp\images\1.bmp"))));
+            rawImages.Add(Convert(new BitmapImage(new Uri(@"C:\temp\images\2.bmp"))));
+            rawImages.Add(Convert(new BitmapImage(new Uri(@"C:\temp\images\3.bmp"))));
 
-            Timer timer = new Timer(TimerTick, null, 0, 50);
+            CurrentImage = new WriteableBitmap(new BitmapImage(new Uri(@"C:\temp\images\1.bmp")));
+        }
+
+        private byte[] Convert(BitmapImage image)
+        {
+            var stride = ((int)image.Width) * 16 + ((int)image.Width) % 4;
+            byte[] bits = new byte[((int)image.Height) * stride];
+            image.CopyPixels(bits, stride, 0);
+            return bits;
         }
 
         private void TimerTick(object sender)
         {
-            if(isRunning)
-            {
                 try
                 {
-                    CurrentImage = images[imageIndex];
-                    imageIndex = imageIndex >= images.Count - 1 ? 0 : imageIndex + 1;
+                    //logo.Freeze();
+                    //Action action = delegate { image1.Source = logo; };
+                    //image1.Dispatcher.Invoke(action);
+
+                    CurrentImage.Dispatcher.Invoke(() => { CurrentImage.WritePixels(new System.Windows.Int32Rect(0, 0, 2560, 2160), rawImages[imageIndex], 2560 * 16 + 2560 % 4, 0); });
+                    
+                    imageIndex = imageIndex >= rawImages.Count - 1 ? 0 : imageIndex + 1;
                 }
                 catch(Exception exc)
                 {
 
                 }
-            }
         }
 
-        private List<BitmapImage> images;
-        private List<byte[]> imagesRaw;
+        private List<byte[]> rawImages;
 
-        private BitmapImage currentImage;
-        public BitmapImage CurrentImage
-        {
-            get
-            {
-                return currentImage;
-            }
-            private set
-            {
-                currentImage = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentImage"));
-            }
-        }
+        public WriteableBitmap CurrentImage { get; private set; }
     }
 }
