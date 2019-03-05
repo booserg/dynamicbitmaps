@@ -25,7 +25,7 @@ namespace VideoControl
         private bool isRunning = false;
         private int imageIndex = 0;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel() 
         {
             start = new DelegateCommand(() => { isRunning = true; });
             stop = new DelegateCommand(() => { isRunning = false; });
