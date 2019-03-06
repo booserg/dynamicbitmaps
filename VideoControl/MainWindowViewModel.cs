@@ -1,17 +1,13 @@
 ﻿using Prism.Commands;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace VideoControl
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel
     {
         private DelegateCommand start;
         public ICommand Start => start;
@@ -20,15 +16,13 @@ namespace VideoControl
 
         public ICommand Stop => stop;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         private int imageIndex = 0;
 
         Timer timer;
 
         public MainWindowViewModel() 
         {
-            start = new DelegateCommand(() => { timer = new Timer(TimerTick, null, 0, 100); });
+            start = new DelegateCommand(() => { timer = new Timer(TimerTick, null, 0, 10); });
             stop = new DelegateCommand(() => 
             {
                 if (timer != null)
@@ -57,20 +51,21 @@ namespace VideoControl
 
         private void TimerTick(object sender)
         {
-                try
+            try
+            {
+                CurrentImage.Dispatcher.Invoke(() => 
                 {
-                    //logo.Freeze();
-                    //Action action = delegate { image1.Source = logo; };
-                    //image1.Dispatcher.Invoke(action);
-
-                    CurrentImage.Dispatcher.Invoke(() => { CurrentImage.WritePixels(new System.Windows.Int32Rect(0, 0, 2560, 2160), rawImages[imageIndex], 2560 * 16 + 2560 % 4, 0); });
+                    var t = DateTime.Now;
+                    CurrentImage.WritePixels(new System.Windows.Int32Rect(0, 0, 2560, 2160), rawImages[imageIndex], 2560 * 16 + 2560 % 4, 0);
+                    Console.WriteLine("Copying time (ms): " + (DateTime.Now - t).TotalMilliseconds);
+                });
                     
-                    imageIndex = imageIndex >= rawImages.Count - 1 ? 0 : imageIndex + 1;
-                }
-                catch(Exception exc)
-                {
+                imageIndex = imageIndex >= rawImages.Count - 1 ? 0 : imageIndex + 1;
+            }
+            catch(Exception exc)
+            {
 
-                }
+            }
         }
 
         private List<byte[]> rawImages;

@@ -3,18 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:ImageControl;assembly=ImageControl"
         xmlns:local="clr-namespace:VideoControl"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
-            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
-        <Viewbox>
-            <Image Source="{Binding CurrentImage}" Height="250"></Image>
-        </Viewbox>
+        <!--<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="50">
+            <controls:ImageControl Source="{Binding CurrentImage}"></controls:ImageControl>
+        </ScrollViewer>-->
+        <!--<ScrollViewer HorizontalScrollBarVisibility="Auto">
+            <Image Source="C:\temp\images\1.bmp">
+                <Image.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="1" ScaleY="1"></ScaleTransform>
+                        <TranslateTransform X="10" Y="100"></TranslateTransform>
+                    </TransformGroup>
+                </Image.LayoutTransform>
+            </Image>
+        </ScrollViewer>-->
+        <controls:ScrollImageControl Margin="20" Source="{Binding CurrentImage}"></controls:ScrollImageControl>
         <StackPanel Grid.Row="1">
+            <Button Command="{Binding ShowAll}">Show all</Button>
             <Button Command="{Binding Start}">Start</Button>
             <Button Command="{Binding Stop}">Stop</Button>
         </StackPanel>
